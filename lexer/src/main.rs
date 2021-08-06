@@ -74,16 +74,10 @@ fn rules() -> Vec<Box<dyn Rule>> {
             .into_iter()
             .collect(),
         )),
-        // True and False get special rules due to their behaviour
-        re_rule("t(?i:rue)", TokenKind::Bool(true), "true"),
-        re_rule("f(?i:alse)", TokenKind::Bool(false), "false"),
-        // Type ID
-        refined_re_rule(r"(SELF_TYPE|[A-Z][A-Za-z0-9_]*)", refine_type_id, "Type ID"),
-        // Object ID
-        refined_re_rule(r"(self|[a-z][A-Za-z0-9_]*)", refine_object_id, "Object ID"),
-        // Int
-        refined_re_rule(r"[0-9]+", refine_int, "Int"),
-        // String
+        lit_rule("<=", TokenKind::Le),
+        lit_rule("=>", TokenKind::DArrow),
+        lit_rule("<-", TokenKind::Assign),
+        // Comments
         Box::new(BlockCommentRule::default()),
         Box::new(
             re_rule(r"--[^\n]*$", TokenKind::LineComment, "Line Comment").with_accepting_fn(
@@ -99,10 +93,8 @@ fn rules() -> Vec<Box<dyn Rule>> {
                 }),
             ),
         ),
+        // Strings
         Box::new(StringRule::default()),
-        lit_rule("<=", TokenKind::Le),
-        lit_rule("=>", TokenKind::DArrow),
-        lit_rule("<-", TokenKind::Assign),
         // Single characters
         lit_rule("{", TokenKind::OpenBrace),
         lit_rule("}", TokenKind::CloseBrace),
@@ -121,6 +113,15 @@ fn rules() -> Vec<Box<dyn Rule>> {
         lit_rule("*", TokenKind::Star),
         lit_rule("/", TokenKind::Slash),
         lit_rule("<", TokenKind::Lt),
+        // True and False get special rules due to their behaviour
+        re_rule("t(?i:rue)", TokenKind::Bool(true), "true"),
+        re_rule("f(?i:alse)", TokenKind::Bool(false), "false"),
+        // Int
+        refined_re_rule(r"[0-9]+", refine_int, "Int"),
+        // Type ID
+        refined_re_rule(r"(SELF_TYPE|[A-Z][A-Za-z0-9_]*)", refine_type_id, "Type ID"),
+        // Object ID
+        refined_re_rule(r"(self|[a-z][A-Za-z0-9_]*)", refine_object_id, "Object ID"),
         // Newlines, to count line number
         Box::new(
             re_rule(r"\n", TokenKind::Whitespace, "whitespace").with_accepting_fn(Box::new(
