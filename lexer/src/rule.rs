@@ -247,7 +247,7 @@ impl StringRule {
                     'b' => result.push('\x08'),
                     't' => result.push('\t'),
                     'n' => result.push('\n'),
-                    'f' => result.push('\x14'),
+                    'f' => result.push('\x0C'),
                     '\n' => {
                         result.push('\n');
                         self.number_of_lines += 1;
