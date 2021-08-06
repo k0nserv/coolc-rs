@@ -10,10 +10,9 @@ fn escaped_string(s: &str) -> String {
             '\n' => result.push_str("\\n"),
             '\t' => result.push_str("\\t"),
             '\x08' => result.push_str("\\b"),
-            '\x14' => result.push_str("\\f"),
+            '\x0C' => result.push_str("\\f"),
             c if c.is_ascii() && !c.is_control() => result.push(c),
             c => result.push_str(&format!("\\{:03o}", c as u32)),
-            // c => unreachable!(),
         }
     }
 
