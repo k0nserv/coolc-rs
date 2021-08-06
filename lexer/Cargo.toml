@@ -6,16 +6,8 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[build-dependencies]
-common = { path = "../common" }
-cfgrammar = "0.10.1"
-lrlex = "0.10.1"
-
 [dependencies]
 common = { path = "../common" }
-cfgrammar = "0.10.1"
-lrlex = "0.10.1"
-lrpar = "0.10.1"
 regex= "1.5.4"
 either = "1.6.1"
 clap = "2.33.3"
