@@ -252,6 +252,14 @@ impl StringRule {
                         result.push('\n');
                         self.number_of_lines += 1;
                     }
+                    '\0' => {
+                        // Consume until a stable state
+                        self.recovery_consume = Some(cursor.length_including(&['\n', '\"']));
+                        return Err((
+                            cursor.consumed_len(),
+                            "String contains escaped null character.".into(),
+                        ));
+                    }
                     other => result.push(other),
                 }
             } else if cursor.peek().map(|c| c == '\"').unwrap_or(false) {
