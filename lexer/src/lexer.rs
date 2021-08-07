@@ -3,7 +3,9 @@ use common::Token;
 use crate::rule::Rule;
 
 #[derive(Clone)]
+/// Context maintained by `Lexer` as it lexes the source code.
 pub struct LexerContext {
+    /// The current line number.
     pub line_number: usize,
 }
 
@@ -31,17 +33,14 @@ impl Lexer {
             let mut current_match: Option<(usize, &mut dyn Rule, Token)> = None;
 
             for rule in self.rules.iter_mut() {
-                match rule.try_match(current) {
-                    Some(token) => {
-                        if current_match
-                            .as_ref()
-                            .map(|m| token.length > m.0)
-                            .unwrap_or(true)
-                        {
-                            current_match = Some((token.length, rule.as_mut(), token));
-                        }
+                if let Some(token) = rule.try_match(current) {
+                    if current_match
+                        .as_ref()
+                        .map(|m| token.length > m.0)
+                        .unwrap_or(true)
+                    {
+                        current_match = Some((token.length, rule.as_mut(), token));
                     }
-                    None => (),
                 }
             }
 

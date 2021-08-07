@@ -1,6 +1,7 @@
 use either::Either;
 use regex::{Match, Regex, RegexBuilder};
 
+use std::cmp::Ordering;
 use std::collections::HashMap;
 
 use common::{KeywordKind, Token, TokenKind};
@@ -19,7 +20,19 @@ impl From<regex::Error> for RuleError {
 }
 
 pub trait Rule {
+    /// Try to match the given rule.
+    ///
+    /// If the rule matches return it should return a token.
+    /// A match doesn't mean this rule is accepted, another rule might produce a
+    /// longer match or have higher precedence.
     fn try_match<'a, 'b>(&'a mut self, source: &'b str) -> Option<Token<'b>>;
+
+    /// Accept a token that has been matched by this rule.
+    ///
+    /// Called when the lexer has decided to accept a match from this rule.
+    /// This method should return the resulting source text, typically by slicing `source`, after
+    /// consuming the match.
+    /// `accept` can also modify the lexer context, for example incrementing the line count.
     fn accept<'s>(
         &'_ mut self,
         token: &Token<'s>,
@@ -130,15 +143,13 @@ impl Rule for KeywordRule {
                 .filter(|(&key, _)| {
                     if longest_match_length > key.len() {
                         false
+                    } else if source.len() >= key.len()
+                        && source[..key.len()].to_lowercase() == key.to_lowercase()
+                    {
+                        longest_match_length = key.len();
+                        true
                     } else {
-                        if source.len() >= key.len()
-                            && source[..key.len()].to_lowercase() == key.to_lowercase()
-                        {
-                            longest_match_length = key.len();
-                            true
-                        } else {
-                            false
-                        }
+                        false
                     }
                 })
                 .last()
@@ -333,10 +344,14 @@ impl BlockCommentRule {
                     cursor.bump();
                     self.depth -= 1;
 
-                    if self.depth == 0 {
-                        return Ok(cursor.consumed_len());
-                    } else if self.depth < 0 {
-                        return Err((cursor.consumed_len(), "Unmatched *)".into()));
+                    match self.depth.cmp(&0) {
+                        Ordering::Equal => {
+                            return Ok(cursor.consumed_len());
+                        }
+                        Ordering::Less => {
+                            return Err((cursor.consumed_len(), "Unmatched *)".into()));
+                        }
+                        _ => (),
                     }
                 }
                 Some(c) if c == '\n' => {

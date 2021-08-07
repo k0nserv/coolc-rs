@@ -10,7 +10,7 @@ use lexer::prelude::*;
 fn re_rule(pattern: &str, token: TokenKind, desc: &str) -> Box<RegexRule> {
     Box::new(
         RegexRule::new(pattern, token)
-            .expect(&format!("Should be able to build regex rule for {}", desc)),
+            .unwrap_or_else(|_| panic!("Should be able to build regex rule for {}", desc)),
     )
 }
 
@@ -20,7 +20,7 @@ where
 {
     Box::new(
         RegexRule::refined(pattern, Box::new(refinement))
-            .expect(&format!("Should be able to build regex rule for {}", desc)),
+            .unwrap_or_else(|_| panic!("Should be able to build regex rule for {}", desc)),
     )
 }
 

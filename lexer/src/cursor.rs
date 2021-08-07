@@ -9,13 +9,11 @@ pub struct Cursor<'s> {
 
 impl<'s> Cursor<'s> {
     pub fn bump(&mut self) -> Option<char> {
-        let c = self.chars.next();
-
-        c
+        self.chars.next()
     }
 
     pub fn peek(&mut self) -> Option<char> {
-        self.chars().nth(0)
+        self.chars().next()
     }
 
     pub fn second(&mut self) -> Option<char> {
@@ -52,7 +50,7 @@ impl<'s> Cursor<'s> {
         self.chars()
             .position(|c| chars.contains(&c))
             .map(|p| p + 1)
-            .unwrap_or(self.chars().count())
+            .unwrap_or_else(|| self.chars().count())
     }
 
     pub fn chars(&self) -> Chars<'s> {
